@@ -1,0 +1,38 @@
+name: dharamraksha
+description: A modern Flutter MV front-end for a legal-tech application.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.1
+  google_fonts: ^8.0.2
+  fl_chart: ^1.2.0
+  shared_preferences: ^2.5.4
+  lottie: ^3.3.2
+  intl: ^0.20.2
+  shimmer: ^3.0.0
+  qr_flutter: ^4.1.0
+  pdf: ^3.12.0
+  share_plus: ^12.0.1
+  path_provider: ^2.1.5
+  local_auth: ^3.0.1
+  image_picker: ^1.2.1
+  font_awesome_flutter: ^11.0.0
+  animate_do: ^4.2.0
+  confetti: ^0.8.0
+  glassmorphism: ^3.0.0
+  flutter_spinkit: ^5.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
