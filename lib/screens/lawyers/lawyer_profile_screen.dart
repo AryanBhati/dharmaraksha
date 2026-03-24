@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../models/consultation_mode.dart';
-import '../models/lawyer.dart';
-import '../providers/user_provider.dart';
-import '../services/mock_data.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_theme.dart';
-import '../utils/transitions.dart';
-import '../widgets/app_scaffold.dart';
-import '../widgets/wallet_header_action.dart';
-import 'consultation_screen.dart';
-import 'law_firm_profile_screen.dart';
+import '../../models/consultation_mode.dart';
+import '../../models/lawyer.dart';
+import '../../providers/user_provider.dart';
+import '../../services/mock_data.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_theme.dart';
+import '../../utils/transitions.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/wallet_header_action.dart';
+import '../consultation_screen.dart';
+import '../firms/law_firm_profile_screen.dart';
 
 class LawyerProfileScreen extends StatefulWidget {
   final Lawyer lawyer;
@@ -28,6 +28,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final lawyer = widget.lawyer;
     final firm = MockDataService.getFirmById(lawyer.firmId);
     final isSaved = context.watch<UserProvider>().isLawyerSaved(lawyer.id);
@@ -42,7 +43,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
         IconButton(
           icon: Icon(
             isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-            color: isSaved ? AppColors.accent : AppColors.textSecondary,
+            color: isSaved ? AppColors.accent : AppColors.textSecondaryLight,
           ),
           onPressed: () =>
               context.read<UserProvider>().toggleSaveLawyer(lawyer.id),
@@ -56,9 +57,9 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-              border: Border.all(color: AppColors.glassBorder),
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Row(
               children: <Widget>[
@@ -73,7 +74,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                         border: Border.all(
                           color: lawyer.isAvailable
                               ? AppColors.success
-                              : AppColors.border,
+                              : theme.dividerColor,
                           width: 2,
                         ),
                       ),
@@ -86,10 +87,10 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                           alignment: Alignment.center,
                           child: Text(
                             lawyer.name[0],
-                            style: GoogleFonts.philosopher(
+                            style: GoogleFonts.poppins(
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.accent,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -106,7 +107,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                               ? AppColors.success
                               : AppColors.warning,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.background, width: 2),
+                          border: Border.all(color: theme.colorScheme.surface, width: 2),
                         ),
                       ),
                     ),
@@ -119,17 +120,17 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                     children: <Widget>[
                       Text(
                         lawyer.name,
-                        style: GoogleFonts.philosopher(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w700,
                           fontSize: 22,
-                          color: AppColors.textPrimary,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         lawyer.specialization,
-                        style: GoogleFonts.outfit(
-                          color: AppColors.textSecondary,
+                        style: GoogleFonts.inter(
+                          color: AppColors.textSecondaryLight,
                           fontSize: 14,
                         ),
                       ),
@@ -141,17 +142,17 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                           const SizedBox(width: 4),
                           Text(
                             '${lawyer.rating} (${lawyer.reviewsCount} reviews)',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.inter(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
-                              color: AppColors.textPrimary,
+                              color: theme.textTheme.bodyLarge?.color,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             '${lawyer.experienceYears}y exp',
-                            style: GoogleFonts.outfit(
-                              color: AppColors.textSecondary,
+                            style: GoogleFonts.inter(
+                              color: AppColors.textSecondaryLight,
                               fontSize: 14,
                             ),
                           ),
@@ -169,7 +170,9 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.glassColor,
+              color: lawyer.isAvailable
+                  ? AppColors.success.withOpacity(0.08)
+                  : AppColors.warning.withOpacity(0.08),
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
               border: Border.all(
                 color: lawyer.isAvailable
@@ -194,7 +197,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                     lawyer.isAvailable
                         ? 'Available now · avg ${lawyer.averageResponseMinutes} min response'
                         : 'Currently busy · avg ${lawyer.averageResponseMinutes} min response',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: lawyer.isAvailable
@@ -212,23 +215,23 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-              border: Border.all(color: AppColors.glassBorder),
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   'Professional Details',
-                  style: GoogleFonts.philosopher(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 16),
-                _DetailRow(label: 'Specialization', value: lawyer.specialization),
+                _DetailRow(theme: theme, label: 'Specialization', value: lawyer.specialization),
                 const SizedBox(height: 12),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,10 +240,10 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                       width: 100,
                       child: Text(
                         'Firm',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryLight,
                         ),
                       ),
                     ),
@@ -248,7 +251,7 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                       child: firm == null
                           ? Text(
                               'Independent Practice',
-                              style: GoogleFonts.outfit(fontSize: 14),
+                              style: GoogleFonts.inter(fontSize: 14, color: theme.textTheme.bodyLarge?.color),
                             )
                           : GestureDetector(
                               onTap: () {
@@ -259,11 +262,11 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                               },
                               child: Text(
                                 firm.name,
-                                style: GoogleFonts.outfit(
-                                  color: AppColors.accent,
+                                style: GoogleFonts.inter(
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w700,
                                   decoration: TextDecoration.underline,
-                                  decorationColor: AppColors.accent,
+                                  decorationColor: AppColors.primary,
                                   fontSize: 14,
                                 ),
                               ),
@@ -272,9 +275,9 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _DetailRow(label: 'Location', value: lawyer.location),
+                _DetailRow(theme: theme, label: 'Location', value: lawyer.location),
                 const SizedBox(height: 12),
-                _DetailRow(label: 'Languages', value: lawyer.languages.join(', ')),
+                _DetailRow(theme: theme, label: 'Languages', value: lawyer.languages.join(', ')),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 8,
@@ -284,16 +287,16 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                         (area) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: AppColors.accent.withOpacity(0.08),
+                            color: AppColors.primary.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+                            border: Border.all(color: AppColors.primary.withOpacity(0.2)),
                           ),
                           child: Text(
                             area,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -309,28 +312,28 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-              border: Border.all(color: AppColors.glassBorder),
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   'About',
-                  style: GoogleFonts.philosopher(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   lawyer.bio,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     height: 1.6,
                     fontSize: 15,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyMedium?.color,
                   ),
                 ),
               ],
@@ -342,19 +345,19 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-              border: Border.all(color: AppColors.glassBorder),
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   'Consultation Mode',
-                  style: GoogleFonts.philosopher(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -370,15 +373,15 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.accent : AppColors.background,
+                              color: isSelected ? AppColors.primary : theme.scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? AppColors.accent : AppColors.glassBorder,
+                                color: isSelected ? AppColors.primary : theme.dividerColor,
                               ),
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                        color: AppColors.accent.withOpacity(0.3),
+                                        color: AppColors.primary.withOpacity(0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       )
@@ -390,15 +393,15 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                                 Icon(
                                   mode.icon,
                                   size: 20,
-                                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                                  color: isSelected ? Colors.white : AppColors.textSecondaryLight,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
                                   mode.label,
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                                    color: isSelected ? Colors.white : AppColors.textSecondaryLight,
                                   ),
                                 ),
                               ],
@@ -418,16 +421,16 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
                       children: [
                         Text(
                           '₹${effectivePerMinuteFee.toStringAsFixed(0)} / min',
-                          style: GoogleFonts.philosopher(
-                            color: AppColors.accent,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                             fontSize: 26,
                           ),
                         ),
                         Text(
                           '≈ ₹${starterFee.toStringAsFixed(0)} for 10 min',
-                          style: GoogleFonts.outfit(
-                            color: AppColors.textSecondary,
+                          style: GoogleFonts.inter(
+                            color: AppColors.textSecondaryLight,
                             fontSize: 13,
                           ),
                         ),
@@ -455,6 +458,70 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
             ),
           ),
           const SizedBox(height: 24),
+
+          // ── Reviews ──
+          if (lawyer.reviews.isNotEmpty) ...[
+            Text(
+              'Reviews (${lawyer.reviews.length})',
+              style: GoogleFonts.poppins(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...lawyer.reviews.map((review) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppTheme.kBorderRadius),
+                  border: Border.all(color: theme.dividerColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          review.reviewerName,
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 14, color: AppColors.accent),
+                            const SizedBox(width: 4),
+                            Text(
+                              review.rating.toString(),
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      review.comment,
+                      style: GoogleFonts.inter(
+                        color: AppColors.textSecondaryLight,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 24),
+          ],
         ],
       ),
     );
@@ -462,10 +529,11 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
 }
 
 class _DetailRow extends StatelessWidget {
+  final ThemeData theme;
   final String label;
   final String value;
 
-  const _DetailRow({required this.label, required this.value});
+  const _DetailRow({required this.theme, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -476,19 +544,19 @@ class _DetailRow extends StatelessWidget {
           width: 100,
           child: Text(
             label,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w500,
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryLight,
             ),
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 14,
-              color: AppColors.textPrimary,
+              color: theme.textTheme.bodyLarge?.color,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -60,10 +60,13 @@ class TransactionTile extends StatelessWidget {
                         _buildCategoryChip(context, isDark),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat('MMM dd, hh:mm a').format(transaction.dateTime),
+                          DateFormat('MMM dd, hh:mm a')
+                              .format(transaction.dateTime),
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -79,13 +82,18 @@ class TransactionTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
-                      color: isCredit || isRefund ? AppColors.success : AppColors.error,
+                      color: isCredit || isRefund
+                          ? AppColors.success
+                          : AppColors.error,
                     ),
                   ),
                   if (isRefund)
                     const Text(
                       'Refunded',
-                      style: TextStyle(fontSize: 10, color: AppColors.info, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondaryLight,
+                          fontWeight: FontWeight.bold),
                     ),
                 ],
               ),
@@ -102,9 +110,9 @@ class TransactionTile extends StatelessWidget {
     Color iconColor;
 
     if (isRefund) {
-      bgColor = AppColors.info.withValues(alpha: 0.1);
+      bgColor = AppColors.textSecondaryLight.withValues(alpha: 0.1);
       icon = Icons.replay_rounded;
-      iconColor = AppColors.info;
+      iconColor = AppColors.textSecondaryLight;
     } else if (isCredit) {
       bgColor = AppColors.success.withValues(alpha: 0.1);
       icon = Icons.south_west_rounded;
@@ -130,7 +138,9 @@ class TransactionTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant,
+        color: isDark
+            ? Theme.of(context).colorScheme.surface
+            : AppColors.surfaceDark,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -138,7 +148,7 @@ class TransactionTile extends StatelessWidget {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
-          color: isDark ? AppColors.primaryDarkTheme : AppColors.primary,
+          color: isDark ? AppColors.primary : AppColors.primary,
         ),
       ),
     );

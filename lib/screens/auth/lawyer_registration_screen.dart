@@ -52,7 +52,7 @@ class _LawyerRegistrationScreenState extends State<LawyerRegistrationScreen> {
 
   void _next() {
     if (_currentStep < 2) {
-      if (_currentStep == 0 && !_formKey.currentState!.validate()) return;
+      if (_currentStep == 0 && !(_formKey.currentState?.validate() ?? false)) return;
       setState(() => _currentStep++);
     } else {
       _submit();
@@ -139,11 +139,11 @@ class _LawyerRegistrationScreenState extends State<LawyerRegistrationScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: AppColors.heroGradient,
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
         ),
         child: SafeArea(
           child: Column(

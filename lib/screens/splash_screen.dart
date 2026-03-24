@@ -75,20 +75,20 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 22),
             Text(
               'DharamRaksha',
-              style: GoogleFonts.merriweather(
+              style: GoogleFonts.poppins(
                 color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Your Legal Command Center',
+              'Justice. Guidance. Protection.',
               style: GoogleFonts.inter(
-                color: Colors.white.withValues(alpha: 0.75),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w500,
-                fontSize: 14,
+                fontSize: 16,
               ),
             ),
             const SizedBox(height: 28),

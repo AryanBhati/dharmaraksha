@@ -11,6 +11,8 @@ class SupportCenterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return AppScaffold(
       title: 'Support Center',
       actions: const [
@@ -23,26 +25,26 @@ class SupportCenterScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-              border: Border.all(color: AppColors.glassBorder),
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   'Need help right now?',
-                  style: GoogleFonts.philosopher(
+                  style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Reach our support team for app, billing, or consultation concerns.',
-                  style: GoogleFonts.outfit(
-                    color: AppColors.textSecondary,
+                  style: GoogleFonts.inter(
+                    color: AppColors.textSecondaryLight,
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -65,26 +67,30 @@ class SupportCenterScreen extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 16),
             child: Text(
               'Frequently Asked Questions',
-              style: GoogleFonts.philosopher(
+              style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: AppColors.textPrimary,
+                color: theme.textTheme.bodyLarge?.color,
               ),
             ),
           ),
           _FaqItem(
+            theme: theme,
             question: 'How do wallet deductions work?',
             answer: 'The consultation fee is calculated per minute and deducted from your wallet only after a session is successfully completed.',
           ),
           _FaqItem(
+            theme: theme,
             question: 'Can I reschedule a consultation?',
             answer: 'Yes, you can reschedule any upcoming consultation directly from the Consultations tab at least 2 hours before the start time.',
           ),
           _FaqItem(
+            theme: theme,
             question: 'Are my chats and documents private?',
             answer: 'Absolutely. All communications are end-to-end encrypted. Documents shared are only accessible by you and the assigned lawyer.',
           ),
           _FaqItem(
+            theme: theme,
             question: 'What if I am not satisfied?',
             answer: 'DharamRaksha offers a dispute resolution mechanism. You can raise a ticket within 24 hours of your consultation.',
           ),
@@ -123,7 +129,7 @@ class _SupportOption extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 color: AppColors.accent,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
@@ -137,39 +143,40 @@ class _SupportOption extends StatelessWidget {
 }
 
 class _FaqItem extends StatelessWidget {
+  final ThemeData theme;
   final String question;
   final String answer;
 
-  const _FaqItem({required this.question, required this.answer});
+  const _FaqItem({required this.theme, required this.question, required this.answer});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: ExpansionTile(
         shape: const RoundedRectangleBorder(side: BorderSide.none),
         collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
         title: Text(
           question,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: AppColors.textPrimary,
+            color: theme.textTheme.bodyLarge?.color,
           ),
         ),
         iconColor: AppColors.accent,
-        collapsedIconColor: AppColors.textSecondary,
+        collapsedIconColor: AppColors.textSecondaryLight,
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           Text(
             answer,
-            style: GoogleFonts.outfit(
-              color: AppColors.textSecondary,
+            style: GoogleFonts.inter(
+              color: AppColors.textSecondaryLight,
               fontSize: 14,
               height: 1.5,
             ),

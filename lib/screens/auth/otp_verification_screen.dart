@@ -94,8 +94,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     final boxSize = isMobile ? 44.0 : 48.0;
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -116,9 +118,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   // Header
                   Text(
                     'Verify OTP',
-                    style: GoogleFonts.merriweather(
+                    style: GoogleFonts.poppins(
                       fontSize: isMobile ? 24 : 28,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                       height: 1.2,
                     ),
@@ -147,24 +149,27 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           maxLength: 1,
-                          style: GoogleFonts.robotoMono(
-                            color: AppColors.primary,
+                          style: GoogleFonts.inter(
+                            color: theme.textTheme.bodyLarge?.color,
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                           ),
                           decoration: InputDecoration(
                             counterText: '',
-                            filled: false,
-                            enabledBorder: UnderlineInputBorder(
+                            filled: true,
+                            fillColor: theme.colorScheme.surface,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppColors.primary10,
-                                width: 2,
+                                color: theme.dividerColor,
+                                width: 1,
                               ),
                             ),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: AppColors.accent,
-                                width: 2,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
                               ),
                             ),
                             contentPadding:

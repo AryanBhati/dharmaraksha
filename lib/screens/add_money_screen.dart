@@ -83,7 +83,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color:
-                              selected ? AppColors.primary : AppColors.divider,
+                              selected ? AppColors.primary : AppColors.border,
                           width: selected ? 2 : 1,
                         ),
                         boxShadow: selected
@@ -134,7 +134,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.surface.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: Column(
                   children: <Widget>[

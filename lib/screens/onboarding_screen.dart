@@ -19,19 +19,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _pages = [
     _OnboardingData(
-      icon: Icons.flash_on_rounded,
-      title: 'Instant Legal Advice',
-      subtitle: 'Connect with verified lawyers in seconds.\nChat, call, or video — your choice.',
+      icon: Icons.support_agent_rounded,
+      title: 'Talk to Lawyers',
+      subtitle: 'Connect with verified top-tier legal experts instantly.\nChat, call, or video consultation.',
     ),
     _OnboardingData(
-      icon: Icons.verified_user_rounded,
-      title: 'Verified Top Lawyers',
-      subtitle: 'Every lawyer is Bar Council verified.\n500+ experts across 20+ specializations.',
+      icon: Icons.auto_awesome_rounded,
+      title: 'AI Legal Guidance',
+      subtitle: 'Describe your legal problem and get instant,\nAI-powered actionable pathways and solutions.',
     ),
     _OnboardingData(
-      icon: Icons.shield_rounded,
-      title: '100% Confidential',
-      subtitle: 'End-to-end encrypted consultations.\nYour legal matters stay protected.',
+      icon: Icons.description_rounded,
+      title: 'Legal Document Generator',
+      subtitle: 'Create standardized legal documents like notices,\nagreements, and affidavits in minutes.',
+    ),
+    _OnboardingData(
+      icon: Icons.library_books_rounded,
+      title: 'Judicial Library',
+      subtitle: 'Access a massive collection of laws, bare acts,\nlandmark judgments, and your rights.',
+    ),
+    _OnboardingData(
+      icon: Icons.sos_rounded,
+      title: 'Emergency SOS Legal Help',
+      subtitle: 'Get immediate legal assistance in emergencies\nsuch as arrests or domestic violence.',
     ),
   ];
 
@@ -200,9 +210,9 @@ class _OnboardingPage extends StatelessWidget {
             Text(
               data.title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.merriweather(
+              style: GoogleFonts.poppins(
                 fontSize: isMobile ? 24 : 28,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
                 color: AppColors.primary,
                 height: 1.2,
                 letterSpacing: -0.5,

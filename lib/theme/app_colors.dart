@@ -1,65 +1,66 @@
 import 'package:flutter/material.dart';
 
-/// Hardline monochromatic palette — Deep Trust Blue + Spiritual Gold.
+/// Trust Blue + Saffron Palette for DharamRaksha
 ///
-/// Every colour decision must pass through this file.
-/// Only blue, off-white, gold, and two semantic colours are allowed.
+/// Designed to convey trust, clarity, and authority in the LegalTech space.
 class AppColors {
   AppColors._();
 
-  // ─── Core Palette (Sacred Modern) ──────────────────────────────────────────
-  static const Color background = Color(0xFF0D0D1A);      // Deep Midnight
-  static const Color surface = Color(0xFF1A1A2E);         // Deep Purple Surface
-  static const Color accent = Color(0xFFFF6B35);          // Saffron Accent
-  static const Color gold = Color(0xFFFFD700);            // Gold
-  static const Color primary = accent;
+  // ─── Primary Brand Colors ──────────────────────────────────────────────────
+  static const Color primary = Color(0xFF0B3C5D);         // Deep Blue (Trust/Authority)
+  static const Color accent = Color(0xFFF4A261);          // Saffron Accent
+  static const Color secondary = accent;
 
-  // ─── Text ──────────────────────────────────────────────────────────────────
-  static const Color textPrimary = Colors.white;
-  static const Color textSecondary = Color(0xB3FFFFFF);   // 70% White
-  static const Color textTertiary = Color(0x80FFFFFF);    // 50% White
+  // ─── Light Theme Colors ────────────────────────────────────────────────────
+  static const Color backgroundLight = Color(0xFFF5F7FA); // Light Grey
+  static const Color surfaceLight = Colors.white;         // White
+  
+  static const Color textPrimaryLight = Color(0xFF1E293B);
+  static const Color textSecondaryLight = Color(0xFF64748B);
+  static const Color textTertiaryLight = Color(0xFF94A3B8);
 
-  // ─── Functional ────────────────────────────────────────────────────────────
-  static const Color border = Color(0x1AFFFFFF);          // 10% White
-  static const Color divider = border;
-  static const Color success = Color(0xFF4CAF50);
-  static const Color error = Color(0xFFFF5252);
-  static const Color warning = Color(0xFFFFB74D);
+  static const Color borderLight = Color(0xFFE2E8F0);
+  static const Color iconLight = Color(0xFF475569);
 
-  // ─── Glassmorphism Helpers ─────────────────────────────────────────────────
+  // ─── Dark Theme Colors ─────────────────────────────────────────────────────
+  static const Color backgroundDark = Color(0xFF0D1117);
+  static const Color surfaceDark = Color(0xFF161B22);
+
+  static const Color textPrimaryDark = Color(0xFFF1F5F9);
+  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  static const Color textTertiaryDark = Color(0xFF64748B);
+
+  static const Color borderDark = Color(0xFF30363D);
+  static const Color iconDark = Color(0xFF94A3B8);
+
+  // ─── Semantic Colors ───────────────────────────────────────────────────────
+  static const Color success = Color(0xFF2A9D8F); // Green
+  static const Color error = Color(0xFFD62828);   // Red
+  static const Color warning = Color(0xFFE9C46A); // Orange/Warning
+
+  // ─── Aliased Variables (For Contextual Usage) ──────────────────────────────
+  static const Color background = backgroundLight;
+  static const Color surface = surfaceLight;
+  static const Color textPrimary = textPrimaryLight;
+  static const Color textSecondary = textSecondaryLight;
+  static const Color border = borderLight;
+
   static Color get glassColor => Colors.white.withOpacity(0.05);
   static Color get glassBorder => Colors.white.withOpacity(0.1);
 
-  // ─── Legacy Compat & Aliases ───────────────────────────────────────────────
-  static const Color primaryDark = Color(0xFF0A0A16);
-  static const Color surfaceVariant = Color(0xFF252545);
-  static const Color secondary = Color(0xFF3D3D5C);
-  
-  static const Color surfaceDark = surface;
-  static const Color borderDark = border;
-  static const Color backgroundDark = background;
-  static const Color textPrimaryDark = textPrimary;
-  static const Color textSecondaryDark = textSecondary;
-  static const Color primaryDarkTheme = accent;
-
+  // Gradients
   static const List<Color> primaryGradient = [
-    Color(0xFF1A1A2E),
-    Color(0xFF0D0D1A),
+    Color(0xFF0B3C5D),
+    Color(0xFF082D45),
   ];
 
   static const List<Color> goldGradient = [
-    Color(0xFFFFD700),
-    Color(0xFFFFA000),
+    Color(0xFFF4A261),
+    Color(0xFFE76F51),
   ];
 
-  static const List<Color> heroGradient = primaryGradient;
-  static const List<Color> walletGradient = primaryGradient;
-  static const List<Color> auroraGradient = primaryGradient;
+  static Color get primary10 => primary.withOpacity(0.10);
+  static Color get primary50 => primary.withOpacity(0.50);
   
-  static const Color walletGradientStart = surface;
-  static const Color walletGradientEnd = background;
-  static const Color backgroundSoft = background;
-
-  static Color get primary10 => accent.withOpacity(0.10);
-  static Color get primary50 => accent.withOpacity(0.50);
+  static Color get accent10 => accent.withOpacity(0.10);
 }

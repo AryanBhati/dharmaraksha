@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../models/law_firm.dart';
-import '../services/mock_data.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_theme.dart';
-import '../utils/transitions.dart';
-import '../widgets/app_scaffold.dart';
-import '../widgets/wallet_header_action.dart';
-import 'lawyer_profile_screen.dart';
+import '../../models/law_firm.dart';
+import '../../services/mock_data.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_theme.dart';
+import '../../utils/transitions.dart';
+import '../../widgets/app_scaffold.dart';
+import '../../widgets/wallet_header_action.dart';
+import '../lawyers/lawyer_profile_screen.dart';
 
 class LawFirmProfileScreen extends StatelessWidget {
   final LawFirm firm;

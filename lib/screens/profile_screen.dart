@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = context.watch<UserProvider>().user;
     final wallet = context.watch<WalletProvider>();
     final themeProvider = context.watch<ThemeProvider>();
+    final theme = Theme.of(context);
 
     return AppScaffold(
       title: 'My Profile',
@@ -45,10 +46,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.accent, width: 2),
+                          border: Border.all(color: AppColors.primary, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: AppColors.primary.withOpacity(0.15),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             )
@@ -71,9 +72,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         bottom: 4,
                         child: Container(
                           padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppColors.accent,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
                             shape: BoxShape.circle,
+                            border: Border.all(color: theme.colorScheme.surface, width: 2),
                           ),
                           child: const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
                         ),
@@ -83,17 +85,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                   Text(
                     user.name,
-                    style: GoogleFonts.philosopher(
+                    style: GoogleFonts.poppins(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                   ),
                   Text(
                     user.email,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryLight,
                     ),
                   ),
                 ],
@@ -105,9 +107,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
               ),
               child: Row(
                 children: [
@@ -117,19 +119,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Text(
                           'Wallet Balance',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.textSecondaryLight,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _hideBalance ? '₹ ••••••' : '₹${wallet.balance.toStringAsFixed(2)}',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: theme.textTheme.bodyLarge?.color,
                           ),
                         ),
                       ],
@@ -140,6 +142,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       minimumSize: const Size(0, 40),
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: Colors.white,
                     ),
                     child: const Text('Top Up'),
                   ),
@@ -153,10 +157,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               'ACCOUNT SETTINGS',
               [
-                _buildMenuItem(Icons.person_outline_rounded, 'Personal Information', onTap: () {}),
-                _buildMenuItem(Icons.notifications_none_rounded, 'Notifications', 
+                _buildMenuItem(theme, Icons.person_outline_rounded, 'Personal Information', onTap: () {}),
+                _buildMenuItem(theme, Icons.notifications_none_rounded, 'Notifications', 
                   trailing: _buildToggle(_notificationsOn, (v) => setState(() => _notificationsOn = v))),
-                _buildMenuItem(Icons.visibility_off_outlined, 'Hide Balance', 
+                _buildMenuItem(theme, Icons.visibility_off_outlined, 'Hide Balance', 
                   trailing: _buildToggle(_hideBalance, (v) => setState(() => _hideBalance = v))),
               ],
             ),
@@ -165,8 +169,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               'PREFERENCES',
               [
-                _buildMenuItem(Icons.language_rounded, 'Language', trailingText: 'English'),
+                _buildMenuItem(theme, Icons.language_rounded, 'Language', trailingText: 'English'),
                 _buildMenuItem(
+                  theme,
                   themeProvider.isDarkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
                   'Dark Mode',
                   trailing: _buildToggle(themeProvider.isDarkMode, (_) => themeProvider.toggleTheme()),
@@ -178,9 +183,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               'SUPPORT & LEGAL',
               [
-                _buildMenuItem(Icons.help_outline_rounded, 'Help Center', onTap: () {}),
-                _buildMenuItem(Icons.description_outlined, 'Terms of Service', onTap: () {}),
-                _buildMenuItem(Icons.privacy_tip_outlined, 'Privacy Policy', onTap: () {}),
+                _buildMenuItem(theme, Icons.help_outline_rounded, 'Help Center', onTap: () {}),
+                _buildMenuItem(theme, Icons.description_outlined, 'Terms of Service', onTap: () {}),
+                _buildMenuItem(theme, Icons.privacy_tip_outlined, 'Privacy Policy', onTap: () {}),
               ],
             ),
             const SizedBox(height: 40),
@@ -190,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               height: 56,
               child: TextButton(
-                onPressed: () => _showLogoutDialog(context),
+                onPressed: () => _showLogoutDialog(context, theme),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.redAccent,
                   shape: RoundedRectangleBorder(
@@ -200,14 +205,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Text(
                   'Log Out',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               'DharamRaksha v1.0.0',
-              style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary.withOpacity(0.5)),
+              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondaryLight.withOpacity(0.7)),
             ),
             const SizedBox(height: 16),
           ],
@@ -217,6 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSection(BuildContext context, String title, List<Widget> items) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -224,53 +230,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.fromLTRB(4, 0, 0, 12),
           child: Text(
             title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryLight,
             ),
           ),
         ),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(color: theme.dividerColor),
           ),
-          child: Column(children: items),
+          child: Column(
+            children: items.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final item = entry.value;
+              return Column(
+                children: [
+                  item,
+                  if (idx != items.length - 1)
+                    Divider(height: 1, indent: 56, endIndent: 16, color: theme.dividerColor),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, {VoidCallback? onTap, Widget? trailing, String? trailingText}) {
+  Widget _buildMenuItem(ThemeData theme, IconData icon, String title, {VoidCallback? onTap, Widget? trailing, String? trailingText}) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: AppColors.accent),
+            Icon(icon, size: 22, color: AppColors.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
             ),
             if (trailingText != null)
               Text(
                 trailingText,
-                style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
+                style: GoogleFonts.inter(fontSize: 14, color: AppColors.textSecondaryLight),
               ),
             if (trailing != null) trailing,
             if (onTap != null && trailing == null && trailingText == null)
-              Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textSecondary.withOpacity(0.5)),
+              Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textSecondaryLight.withOpacity(0.5)),
           ],
         ),
       ),
@@ -281,18 +300,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Switch.adaptive(
       value: value,
       onChanged: onChanged,
-      activeColor: AppColors.accent,
+      activeColor: AppColors.primary,
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, ThemeData theme) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius)),
-        title: Text('Log Out', style: GoogleFonts.philosopher(fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to sign out?'),
+        title: Text('Log Out', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to sign out?', style: GoogleFonts.inter()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -303,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.pop(context);
               context.read<AuthProvider>().logout();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
             child: const Text('Log Out'),
           ),
         ],
@@ -316,14 +335,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: 100,
       height: 100,
-      color: AppColors.accent.withOpacity(0.1),
+      color: AppColors.primary.withOpacity(0.1),
       alignment: Alignment.center,
       child: Text(
         initials,
-        style: GoogleFonts.philosopher(
+        style: GoogleFonts.poppins(
           fontSize: 40,
           fontWeight: FontWeight.bold,
-          color: AppColors.accent,
+          color: AppColors.primary,
         ),
       ),
     );

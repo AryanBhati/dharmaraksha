@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import '../models/legal_book.dart';
-import '../theme/app_colors.dart';
-import '../widgets/animated_reveal.dart';
+import '../../models/legal_book.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/animated_reveal.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final LegalBook book;
@@ -18,17 +19,21 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final readerBackground = isDark ? theme.colorScheme.surface : const Color(0xFFFFFAF1);
+    final readerForeground = isDark ? Colors.white : AppColors.textPrimary;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFAF1),
+      backgroundColor: readerBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFAF1),
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: readerBackground,
+        foregroundColor: readerForeground,
+        elevation: 0,
         title: Text(
           widget.book.category,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: AppColors.textSecondary),
+          style: GoogleFonts.inter(fontSize: 14, color: isDark ? Colors.white70 : AppColors.textSecondaryLight),
         ),
         actions: <Widget>[
           IconButton(
@@ -58,35 +63,39 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: isDark ? AppColors.surfaceDark : Colors.white,
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: theme.dividerColor),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))
+              ]
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   widget.book.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w800,
-                        height: 1.25,
-                      ),
+                  style: GoogleFonts.poppins(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    height: 1.3,
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(
                   'By ${widget.book.author}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: AppColors.textSecondary),
+                  style: GoogleFonts.inter(
+                    color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                    fontSize: 14,
+                  ),
                 ),
-                const Divider(height: 30),
+                Divider(height: 30, color: theme.dividerColor),
                 Text(
                   widget.book.content,
                   style: TextStyle(
                     fontSize: _fontSize,
-                    color: AppColors.textPrimary,
+                    color: readerForeground,
                     height: 1.75,
                     fontFamily: 'Georgia',
                   ),

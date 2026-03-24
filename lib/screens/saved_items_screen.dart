@@ -6,7 +6,7 @@ import '../services/mock_data.dart';
 import '../widgets/aurora_background.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/wallet_header_action.dart';
-import 'lawyer_profile_screen.dart';
+import 'lawyers/lawyer_profile_screen.dart';
 
 class SavedItemsScreen extends StatelessWidget {
   const SavedItemsScreen({super.key});

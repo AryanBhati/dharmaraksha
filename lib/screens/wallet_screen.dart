@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +20,16 @@ class WalletScreen extends StatefulWidget {
 class _WalletScreenState extends State<WalletScreen> {
   bool _showBalance = true;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<WalletProvider>().refreshTransactions();
+      }
+    });
+  }
+
   void _showAddMoney() {
     showModalBottomSheet(
       context: context,
@@ -33,11 +42,12 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final wallet = context.watch<WalletProvider>();
+    final theme = Theme.of(context);
 
     return AppScaffold(
       title: 'Wallet',
       body: RefreshIndicator(
-        color: AppColors.accent,
+        color: AppColors.primary,
         onRefresh: wallet.refreshTransactions,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -48,6 +58,7 @@ class _WalletScreenState extends State<WalletScreen> {
               showBalance: _showBalance,
               onToggle: () => setState(() => _showBalance = !_showBalance),
               onAddMoney: _showAddMoney,
+              isLoading: wallet.state == WalletState.loading,
             ),
             const SizedBox(height: 24),
 
@@ -81,17 +92,17 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 Text(
                   'Recent Transactions',
-                  style: GoogleFonts.philosopher(
+                  style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: wallet.refreshTransactions,
                   child: Text(
-                    'See All',
-                    style: GoogleFonts.outfit(
+                    'Refresh',
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.w600,
                       color: AppColors.accent,
                     ),
@@ -102,46 +113,41 @@ class _WalletScreenState extends State<WalletScreen> {
             const SizedBox(height: 12),
 
             // ── Transactions List ──
-            _buildTransactionList(wallet),
+            _buildTransactionList(wallet, theme),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTransactionList(WalletProvider wallet) {
+  Widget _buildTransactionList(WalletProvider wallet, ThemeData theme) {
+    if (wallet.state == WalletState.error) {
+      return _buildMessage(
+        theme,
+        icon: Icons.error_outline_rounded,
+        color: AppColors.error,
+        text: wallet.errorMessage ?? 'Failed to load transactions.',
+        action: TextButton(
+          onPressed: wallet.refreshTransactions,
+          child: const Text('Retry'),
+        ),
+      );
+    }
+
+    if (wallet.state == WalletState.loading && wallet.transactions.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 40),
+        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
     final txns = wallet.transactions;
     if (txns.isEmpty) {
-      return Container(
-        margin: const EdgeInsets.only(top: 24),
-        padding: const EdgeInsets.all(40),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-          border: Border.all(color: AppColors.glassBorder),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.history_rounded, size: 40, color: AppColors.accent.withOpacity(0.5)),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'No transactions yet.',
-                style: GoogleFonts.outfit(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
+      return _buildMessage(
+        theme,
+        icon: Icons.history_rounded,
+        color: AppColors.primary,
+        text: 'No transactions yet.',
       );
     }
 
@@ -152,88 +158,140 @@ class _WalletScreenState extends State<WalletScreen> {
       grouped.putIfAbsent(key, () => []).add(tx);
     }
 
-    final widgets = <Widget>[];
-    for (final entry in grouped.entries) {
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
-        child: Text(
-          entry.key.toUpperCase(),
-          style: GoogleFonts.outfit(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: AppColors.accent,
-            letterSpacing: 1.5,
-          ),
-        ),
-      ));
-
-      widgets.add(Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-          border: Border.all(color: AppColors.glassBorder),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: entry.value.asMap().entries.map((itemEntry) {
-            final idx = itemEntry.key;
-            final tx = itemEntry.value;
-            final isCredit = tx.type == TransactionType.credit;
-
-            return Column(
-              children: [
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: (isCredit ? AppColors.success : AppColors.error).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      isCredit ? Icons.add_rounded : Icons.remove_rounded,
-                      size: 20,
-                      color: isCredit ? AppColors.success : AppColors.error,
-                    ),
-                  ),
-                  title: Text(
-                    tx.title,
-                    style: GoogleFonts.philosopher(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${tx.category} • ${DateFormat('hh:mm a').format(tx.dateTime)}',
-                    style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
-                  ),
-                  trailing: Text(
-                    '${isCredit ? '+' : '-'} ₹${tx.amount.toStringAsFixed(0)}',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isCredit ? AppColors.success : AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-                if (idx < entry.value.length - 1)
-                  Divider(
-                    height: 1,
-                    indent: 68,
-                    endIndent: 16,
-                    color: AppColors.glassBorder,
-                  ),
-              ],
-            );
-          }).toList(),
-        ),
-      ));
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets,
+      children: grouped.entries.map((entry) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
+              child: Text(
+                entry.key.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
+                border: Border.all(color: theme.dividerColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    spreadRadius: 0,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: entry.value.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  indent: 68,
+                  endIndent: 16,
+                  color: theme.dividerColor,
+                ),
+                itemBuilder: (_, idx) {
+                  final tx = entry.value[idx];
+                  final isCredit = tx.type == TransactionType.credit;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: (isCredit ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        isCredit ? Icons.add_rounded : Icons.remove_rounded,
+                        size: 20,
+                        color: isCredit ? AppColors.success : AppColors.error,
+                      ),
+                    ),
+                    title: Text(
+                      tx.title,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${tx.category} • ${DateFormat('hh:mm a').format(tx.dateTime)}',
+                      style: GoogleFonts.inter(color: AppColors.textSecondaryLight, fontSize: 13),
+                    ),
+                    trailing: Text(
+                      '${isCredit ? '+' : '-'} ₹${tx.amount.toStringAsFixed(0)}',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isCredit ? AppColors.success : theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMessage(ThemeData theme, {required IconData icon, required Color color, required String text, Widget? action}) {
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
+        border: Border.all(color: theme.dividerColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            spreadRadius: 0,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 40, color: color.withValues(alpha: 0.5)),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                color: AppColors.textSecondaryLight,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (action != null) ...[
+              const SizedBox(height: 16),
+              action,
+            ]
+          ],
+        ),
+      ),
     );
   }
 
@@ -250,12 +308,14 @@ class _WalletScreenState extends State<WalletScreen> {
 class _BalanceCard extends StatelessWidget {
   final double balance;
   final bool showBalance;
+  final bool isLoading;
   final VoidCallback onToggle;
   final VoidCallback onAddMoney;
 
   const _BalanceCard({
     required this.balance,
     required this.showBalance,
+    required this.isLoading,
     required this.onToggle,
     required this.onAddMoney,
   });
@@ -269,9 +329,9 @@ class _BalanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.35),
-            blurRadius: 25,
-            offset: const Offset(0, 12),
+            color: AppColors.primary.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
         gradient: LinearGradient(
@@ -296,7 +356,7 @@ class _BalanceCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
-                    colors: [Colors.white.withOpacity(0.12), Colors.transparent],
+                    colors: [Colors.white.withValues(alpha: 0.12), Colors.transparent],
                   ),
                 ),
               ),
@@ -310,8 +370,8 @@ class _BalanceCard extends StatelessWidget {
                     children: [
                       Text(
                         'AVAILABLE BALANCE',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white.withOpacity(0.7),
+                        style: GoogleFonts.inter(
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -322,20 +382,34 @@ class _BalanceCard extends StatelessWidget {
                         onTap: onToggle,
                         child: Icon(
                           showBalance ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           size: 18,
                         ),
                       ),
+                      const Spacer(),
+                      if (isLoading)
+                        const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    showBalance ? '₹ ${balance.toStringAsFixed(2)}' : '₹ ••••••',
-                    style: GoogleFonts.philosopher(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: balance),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, val, child) {
+                      return Text(
+                        showBalance ? '₹ ${val.toStringAsFixed(2)}' : '₹ ••••••',
+                        style: GoogleFonts.poppins(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                   Row(
@@ -351,14 +425,14 @@ class _BalanceCard extends StatelessWidget {
                         ),
                         child: Text(
                           'Add Money',
-                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.arrow_outward_rounded, color: Colors.white, size: 20),
@@ -388,12 +462,22 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(AppTheme.kCardBorderRadius),
-          border: Border.all(color: AppColors.glassBorder),
+          border: Border.all(color: theme.dividerColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
@@ -407,18 +491,18 @@ class _QuickAction extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(icon, size: 24, color: AppColors.accent),
+                    child: Icon(icon, size: 24, color: AppColors.primary),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     label,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                   ),
                 ],
@@ -430,5 +514,3 @@ class _QuickAction extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/ai_response.dart';
-import '../theme/app_colors.dart';
-import '../widgets/animated_reveal.dart';
-import '../widgets/aurora_background.dart';
-import '../widgets/primary_button.dart';
-import '../widgets/profile_avatar.dart';
-import '../widgets/wallet_header_action.dart';
-import 'main_navigation_screen.dart';
+import '../../models/ai_response.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/animated_reveal.dart';
+import '../../widgets/aurora_background.dart';
+import '../../widgets/primary_button.dart';
+import '../../widgets/profile_avatar.dart';
+import '../../widgets/wallet_header_action.dart';
+import '../main_navigation_screen.dart';
 
 class AIGuidanceScreen extends StatelessWidget {
   final String problem;
@@ -39,8 +39,8 @@ class AIGuidanceScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  gradient: const LinearGradient(
-                    colors: AppColors.heroGradient,
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../models/consultation_mode.dart';
-import '../models/lawyer.dart';
-import '../services/mock_data.dart';
-import '../theme/app_colors.dart';
-import '../utils/transitions.dart';
-import '../widgets/animated_reveal.dart';
-import '../widgets/app_scaffold.dart';
-import '../widgets/lawyer_card.dart';
-import '../widgets/wallet_header_action.dart';
-import 'consultation_screen.dart';
+import '../../models/consultation_mode.dart';
+import '../../models/lawyer.dart';
+import '../../services/mock_data.dart';
+import '../../theme/app_colors.dart';
+import '../../utils/transitions.dart';
+import '../../widgets/lawyer_card.dart';
+import '../consultation_screen.dart';
 import 'lawyer_profile_screen.dart';
 
 enum LawyerSortOption { recommended, ratingHigh, experienceHigh, feeLowToHigh }
@@ -28,9 +25,9 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
   final Set<String> _selectedLanguages = <String>{};
   final Set<String> _selectedLocations = <String>{};
   RangeValues _experienceRange = const RangeValues(0, 25);
-  late RangeValues _feeRange;
-  late final double _feeMin;
-  late final double _feeMax;
+  RangeValues _feeRange = const RangeValues(0, 10000);
+  double _feeMin = 0;
+  double _feeMax = 10000;
   double _minimumRating = 0;
   LawyerSortOption _sortOption = LawyerSortOption.recommended;
 
@@ -41,9 +38,11 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
         .map((lawyer) => lawyer.consultationFeePerMinute)
         .toList();
     allFees.sort();
-    _feeMin = allFees.isNotEmpty ? allFees.first : 0;
-    _feeMax = allFees.isNotEmpty ? allFees.last : 100;
-    _feeRange = RangeValues(_feeMin, _feeMax);
+    if (allFees.isNotEmpty) {
+      _feeMin = allFees.first;
+      _feeMax = allFees.last;
+      _feeRange = RangeValues(_feeMin, _feeMax);
+    }
   }
 
   bool get _hasActiveFilters =>
@@ -59,111 +58,120 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final lawyers = _applyFilters(MockDataService.lawyers);
 
-    return AppScaffold(
-      title: 'Lawyer Recommendations',
-      actions: const [
-        WalletHeaderAction(),
-        SizedBox(width: 8),
-      ],
-      body: Column(
-        children: <Widget>[
+    return Container(
+      color: theme.scaffoldBackgroundColor,
+      child: CustomScrollView(
+        slivers: <Widget>[
           // Search & Filter Header
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border(bottom: BorderSide(color: AppColors.glassBorder)),
-            ),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundDark,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.glassBorder),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            onChanged: (value) => setState(() => _query = value),
-                            style: GoogleFonts.outfit(color: AppColors.textPrimary),
-                            decoration: InputDecoration(
-                              hintText: 'Search lawyers...',
-                              hintStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 14),
-                              border: InputBorder.none,
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                border: Border(bottom: BorderSide(color: theme.dividerColor)),
+              ),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: theme.scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: theme.dividerColor),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search_rounded, color: AppColors.textSecondaryLight, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              onChanged: (value) => setState(() => _query = value),
+                              style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color),
+                              decoration: InputDecoration(
+                                hintText: 'Search lawyers...',
+                                hintStyle: GoogleFonts.inter(color: AppColors.textTertiaryLight, fontSize: 14),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                                fillColor: Colors.transparent,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                InkWell(
-                  onTap: _openFilterSheet,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: _hasActiveFilters ? AppColors.accent : AppColors.backgroundDark,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _hasActiveFilters ? AppColors.accent : AppColors.glassBorder),
-                    ),
-                    child: Icon(
-                      Icons.tune_rounded,
-                      color: _hasActiveFilters ? Colors.white : AppColors.textPrimary,
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: _openFilterSheet,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: _hasActiveFilters ? AppColors.accent : theme.scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: _hasActiveFilters ? AppColors.accent : theme.dividerColor),
+                      ),
+                      child: Icon(
+                        Icons.tune_rounded,
+                        color: _hasActiveFilters ? Colors.white : AppColors.primary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           
           // Result info
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Row(
-              children: [
-                Text(
-                  '${lawyers.length} legal experts match your needs',
-                  style: GoogleFonts.outfit(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Row(
+                children: [
+                  Text(
+                    '${lawyers.length} legal experts match your needs',
+                    style: GoogleFonts.inter(
+                      color: AppColors.textSecondaryLight,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
-          Expanded(
-            child: lawyers.isEmpty
-                ? _EmptyState(onReset: _resetFilters)
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    itemCount: lawyers.length,
-                    itemBuilder: (_, index) {
-                      final lawyer = lawyers[index];
-                      return AnimatedReveal(
-                        delayMs: index < 8 ? index * 60 : 0,
-                        child: LawyerCard(
-                          lawyer: lawyer,
-                          onTap: () => _openProfile(context, lawyer),
-                          onConsultNow: () => _quickConsult(context, lawyer),
-                        ),
-                      );
-                    },
-                  ),
-          ),
+          if (lawyers.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _EmptyState(onReset: _resetFilters),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (_, index) {
+                    final lawyer = lawyers[index];
+                    return LawyerCard(
+                      lawyer: lawyer,
+                      onTap: () => _openProfile(context, lawyer),
+                      onCall: () => _quickConsult(context, lawyer, ConsultationMode.voice),
+                      onChat: () => _quickConsult(context, lawyer, ConsultationMode.chat),
+                    );
+                  },
+                  childCount: lawyers.length,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -243,12 +251,13 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final theme = Theme.of(context);
             return Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
               ),
               child: SafeArea(
                 top: false,
@@ -261,7 +270,7 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: AppColors.textSecondary.withOpacity(0.2),
+                            color: theme.dividerColor,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -269,7 +278,7 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                       const SizedBox(height: 24),
                       Text(
                         'Refine Search',
-                        style: GoogleFonts.philosopher(fontWeight: FontWeight.bold, fontSize: 22),
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 22),
                       ),
                       const SizedBox(height: 24),
                       _FilterSection(
@@ -280,7 +289,7 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                           children: MockDataService.allPracticeAreas.map((area) {
                             final isSelected = selectedPracticeAreas.contains(area);
                             return FilterChip(
-                              label: Text(area, style: GoogleFonts.outfit(fontSize: 13)),
+                              label: Text(area, style: GoogleFonts.inter(fontSize: 13)),
                               selected: isSelected,
                               onSelected: (selected) {
                                 setModalState(() {
@@ -292,7 +301,7 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                                 });
                               },
                               selectedColor: AppColors.accent,
-                              labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textPrimary),
+                              labelStyle: TextStyle(color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color),
                             );
                           }).toList(),
                         ),
@@ -324,16 +333,16 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: AppColors.backgroundDark,
+                            color: theme.scaffoldBackgroundColor,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.glassBorder),
+                            border: Border.all(color: theme.dividerColor),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<LawyerSortOption>(
                               value: tempSort,
                               isExpanded: true,
-                              dropdownColor: AppColors.surface,
-                              style: GoogleFonts.outfit(color: AppColors.textPrimary),
+                              dropdownColor: theme.colorScheme.surface,
+                              style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color, fontWeight: FontWeight.w500),
                               items: const [
                                 DropdownMenuItem(value: LawyerSortOption.recommended, child: Text('Recommended')),
                                 DropdownMenuItem(value: LawyerSortOption.ratingHigh, child: Text('Highest Rating')),
@@ -352,7 +361,6 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                         children: <Widget>[
                           Expanded(
                             child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                               onPressed: () {
                                 Navigator.pop(ctx);
                                 _resetFilters();
@@ -363,7 +371,6 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                               onPressed: () {
                                 setState(() {
                                   _selectedPracticeAreas..clear()..addAll(selectedPracticeAreas);
@@ -376,7 +383,7 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
                                 });
                                 Navigator.pop(ctx);
                               },
-                              child: const Text('Apply Filters'),
+                              child: const Text('Apply'),
                             ),
                           ),
                         ],
@@ -408,12 +415,12 @@ class _LawyerListingScreenState extends State<LawyerListingScreen> {
     Navigator.push(context, slideRoute(LawyerProfileScreen(lawyer: lawyer)));
   }
 
-  void _quickConsult(BuildContext context, Lawyer lawyer) {
+  void _quickConsult(BuildContext context, Lawyer lawyer, ConsultationMode mode) {
     Navigator.push(
       context,
       slideRoute(ConsultationScreen(
         lawyer: lawyer,
-        mode: ConsultationMode.chat,
+        mode: mode,
       )),
     );
   }
@@ -434,7 +441,7 @@ class _FilterSection extends StatelessWidget {
         children: <Widget>[
           Text(
             title,
-            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondary),
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondaryLight),
           ),
           const SizedBox(height: 12),
           child,
@@ -451,6 +458,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -460,22 +468,22 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.colorScheme.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
               ),
-              child: Icon(Icons.search_off_rounded, size: 48, color: AppColors.textSecondary.withOpacity(0.5)),
+              child: Icon(Icons.search_off_rounded, size: 48, color: AppColors.textSecondaryLight.withOpacity(0.5)),
             ),
             const SizedBox(height: 24),
             Text(
               'No legal experts found',
-              style: GoogleFonts.philosopher(fontWeight: FontWeight.bold, fontSize: 20),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 12),
             Text(
               'Try adjusting your filters or using different keywords to find the right lawyer for you.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(color: AppColors.textSecondary, height: 1.5),
+              style: GoogleFonts.inter(color: AppColors.textSecondaryLight, height: 1.5),
             ),
             const SizedBox(height: 32),
             OutlinedButton(

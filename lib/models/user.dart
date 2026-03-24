@@ -10,6 +10,7 @@ class AppUser {
   final List<String> savedLawyers;
   final List<String> uploadedDocuments;
   final DateTime createdAt;
+  final DateTime? dateOfBirth;
 
   const AppUser({
     required this.id,
@@ -23,6 +24,7 @@ class AppUser {
     this.savedLawyers = const <String>[],
     this.uploadedDocuments = const <String>[],
     required this.createdAt,
+    this.dateOfBirth,
   });
 
   AppUser copyWith({
@@ -36,6 +38,7 @@ class AppUser {
     List<String>? savedLawyers,
     List<String>? uploadedDocuments,
     DateTime? createdAt,
+    DateTime? dateOfBirth,
     List<String>? savedLawyerIds,
     List<String>? savedDocumentIds,
   }) {
@@ -53,7 +56,20 @@ class AppUser {
       uploadedDocuments:
           uploadedDocuments ?? savedDocumentIds ?? this.uploadedDocuments,
       createdAt: createdAt ?? this.createdAt,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
     );
+  }
+
+  int? get age {
+    final dob = dateOfBirth;
+    if (dob == null) return null;
+    final now = DateTime.now();
+    int a = now.year - dob.year;
+    if (now.month < dob.month || 
+        (now.month == dob.month && now.day < dob.day)) {
+      a--;
+    }
+    return a;
   }
 
   String get profileImageUrl => profilePhoto;
@@ -72,6 +88,7 @@ class AppUser {
       'savedLawyers': savedLawyers,
       'uploadedDocuments': uploadedDocuments,
       'createdAt': createdAt.toIso8601String(),
+      'dateOfBirth': dateOfBirth?.toIso8601String(),
       'isVerified': isVerified,
     };
   }
@@ -96,6 +113,7 @@ class AppUser {
               .toList(growable: false),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
+      dateOfBirth: json['dateOfBirth'] != null ? DateTime.tryParse(json['dateOfBirth'] as String) : null,
       isVerified: json['isVerified'] as bool? ?? false,
     );
   }

@@ -22,8 +22,8 @@ class WalletCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           colors: <Color>[
-            AppColors.walletGradientStart,
-            AppColors.walletGradientEnd
+            AppColors.primary,
+            AppColors.accent
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

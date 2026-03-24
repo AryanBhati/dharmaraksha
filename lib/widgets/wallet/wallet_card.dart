@@ -33,7 +33,7 @@ class _WalletCardState extends State<WalletCard>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors:
-                isDark ? AppColors.walletGradient : AppColors.primaryGradient,
+                isDark ? [AppColors.primary, AppColors.accent] : AppColors.primaryGradient,
             stops: const [0.1, 1.0]),
         borderGradient: LinearGradient(
             begin: Alignment.topLeft,

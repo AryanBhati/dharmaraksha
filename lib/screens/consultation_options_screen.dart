@@ -39,8 +39,8 @@ class ConsultationOptionsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(colors: <Color>[
-                  AppColors.walletGradientStart,
-                  AppColors.walletGradientEnd
+                  AppColors.primary,
+                  AppColors.accent
                 ]),
                 borderRadius: BorderRadius.circular(20),
               ),

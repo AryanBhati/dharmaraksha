@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 
 class AppScaffold extends StatelessWidget {
   final String title;
@@ -20,9 +19,10 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canPop = Navigator.canPop(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       appBar: AppBar(
         title: Text(title),
@@ -35,11 +35,11 @@ class AppScaffold extends StatelessWidget {
         actions: actions,
         // Ensure static behavior
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.background.withOpacity(0.8),
+        backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.95),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppColors.glassBorder, width: 0.5),
+              bottom: BorderSide(color: theme.dividerColor, width: 0.5),
             ),
           ),
         ),

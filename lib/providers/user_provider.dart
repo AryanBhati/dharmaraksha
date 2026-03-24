@@ -10,8 +10,8 @@ class UserProvider extends ChangeNotifier {
   AppUser get user => _user;
 
   void updateProfile(
-      {required String name, required String email, required String phone}) {
-    _user = _user.copyWith(name: name, email: email, phone: phone);
+      {required String name, required String email, required String phone, DateTime? dateOfBirth}) {
+    _user = _user.copyWith(name: name, email: email, phone: phone, dateOfBirth: dateOfBirth);
     notifyListeners();
   }
 

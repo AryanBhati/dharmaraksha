@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../services/mock_data.dart';
-import '../widgets/animated_reveal.dart';
-import '../widgets/aurora_background.dart';
-import '../widgets/firm_card.dart';
-import '../widgets/profile_avatar.dart';
-import '../widgets/wallet_header_action.dart';
+import '../../services/mock_data.dart';
+import '../../widgets/firm_card.dart';
 import 'law_firm_profile_screen.dart';
 
 class LawFirmListingScreen extends StatefulWidget {
@@ -34,14 +30,8 @@ class _LawFirmListingScreenState extends State<LawFirmListingScreen> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Law Firm Directory'),
-        actions: const <Widget>[
-          WalletHeaderAction(),
-          ProfileAvatar(),
-        ],
-      ),
-      body: AuroraBackground(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
         child: Column(
           children: <Widget>[
             Padding(
@@ -65,20 +55,17 @@ class _LawFirmListingScreenState extends State<LawFirmListingScreen> {
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       itemCount: firms.length,
-                      itemBuilder: (_, index) => AnimatedReveal(
-                        delayMs: index < 8 ? index * 70 : 0,
-                        child: FirmCard(
-                          firm: firms[index],
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    LawFirmProfileScreen(firm: firms[index]),
-                              ),
-                            );
-                          },
-                        ),
+                      itemBuilder: (_, index) => FirmCard(
+                        firm: firms[index],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  LawFirmProfileScreen(firm: firms[index]),
+                            ),
+                          );
+                        },
                       ),
                     ),
             ),

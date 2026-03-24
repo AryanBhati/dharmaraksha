@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/lawyer.dart';
 import '../theme/app_colors.dart';
 import '../utils/app_formatters.dart';
-import '../screens/lawyer_profile_screen.dart';
+import '../screens/lawyers/lawyer_profile_screen.dart';
 
 class LawyerMiniCard extends StatelessWidget {
   final Lawyer lawyer;
@@ -31,7 +31,7 @@ class LawyerMiniCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: isDark 
               ? [AppColors.surfaceDark, AppColors.surfaceDark.withValues(alpha: 0.8)]
-              : [Colors.white, AppColors.surfaceVariant.withValues(alpha: 0.3)],
+              : [Theme.of(context).colorScheme.surface, AppColors.primary10.withValues(alpha: 0.3)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
 
+enum WalletState { loading, loaded, error }
+
 class WalletProvider extends ChangeNotifier {
   static const String _balanceKey = 'wallet_balance';
   static const String _transactionsKey = 'wallet_transactions';
@@ -12,6 +14,9 @@ class WalletProvider extends ChangeNotifier {
   List<Transaction> _allTransactions = [];
   List<Transaction> _filteredTransactions = [];
   
+  WalletState _state = WalletState.loading;
+  String? _errorMessage;
+
   final _balanceStreamController = StreamController<double>.broadcast();
   Timer? _searchDebounce;
 
@@ -21,35 +26,74 @@ class WalletProvider extends ChangeNotifier {
 
   // Getters
   double get balance => _balance;
+  WalletState get state => _state;
+  String? get errorMessage => _errorMessage;
   Stream<double> get balanceStream => _balanceStreamController.stream;
-  List<Transaction> get transactions => _filteredTransactions.isEmpty 
+  List<Transaction> get transactions => _filteredTransactions.isEmpty && _searchDebounce?.isActive != true
       ? _allTransactions 
       : _filteredTransactions;
 
   // Initialize
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
-    _balance = prefs.getDouble(_balanceKey) ?? 5000.0;
-    
-    final txJson = prefs.getStringList(_transactionsKey);
-    if (txJson != null) {
-      _allTransactions = txJson
-          .map((item) => Transaction.fromJson(jsonDecode(item)))
-          .toList();
-      _allTransactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    } else {
-      _seedMockData();
+    _state = WalletState.loading;
+    notifyListeners();
+
+    try {
+      // Simulate network latency for initialization
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      
+      final prefs = await SharedPreferences.getInstance();
+      _balance = prefs.getDouble(_balanceKey) ?? 5000.0;
+      
+      final txJson = prefs.getStringList(_transactionsKey);
+      if (txJson != null) {
+        _allTransactions = txJson
+            .map((item) => Transaction.fromJson(jsonDecode(item)))
+            .toList();
+        _allTransactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      } else {
+        _seedMockData();
+      }
+      
+      _filteredTransactions = List.from(_allTransactions);
+      _balanceStreamController.add(_balance);
+      
+      _state = WalletState.loaded;
+      _errorMessage = null;
+    } catch (e) {
+      _state = WalletState.error;
+      _errorMessage = 'Failed to load wallet data.';
     }
     
-    _filteredTransactions = List.from(_allTransactions);
-    _balanceStreamController.add(_balance);
     notifyListeners();
   }
 
   Future<void> refreshTransactions() async {
-    // Simulate a network refresh
-    await Future<void>.delayed(const Duration(seconds: 1));
-    await _init();
+    _state = WalletState.loading;
+    notifyListeners();
+    
+    try {
+      // Simulate a network refresh
+      await Future<void>.delayed(const Duration(seconds: 1));
+      
+      final prefs = await SharedPreferences.getInstance();
+      final txJson = prefs.getStringList(_transactionsKey);
+      if (txJson != null) {
+        _allTransactions = txJson
+            .map((item) => Transaction.fromJson(jsonDecode(item)))
+            .toList();
+        _allTransactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      }
+      
+      _filteredTransactions = List.from(_allTransactions);
+      _state = WalletState.loaded;
+      _errorMessage = null;
+    } catch (e) {
+      _state = WalletState.error;
+      _errorMessage = 'Failed to refresh transactions.';
+    }
+    
+    notifyListeners();
   }
 
   void _seedMockData() {
@@ -80,69 +124,105 @@ class WalletProvider extends ChangeNotifier {
 
   // Actions
   Future<void> addMoney(double amount, {String? category, String? description}) async {
-    _balance += amount;
-    final tx = Transaction(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      userId: 'u01',
-      amount: amount,
-      title: 'Money Added',
-      description: description ?? 'Wallet top-up',
-      dateTime: DateTime.now(),
-      type: TransactionType.credit,
-      category: category ?? 'Top-up',
-    );
+    _state = WalletState.loading;
+    notifyListeners();
     
-    _allTransactions.insert(0, tx);
-    _filteredTransactions = List.from(_allTransactions);
+    try {
+      // Simulate network delay for transaction
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      
+      _balance += amount;
+      final tx = Transaction(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: 'u01',
+        amount: amount,
+        title: 'Money Added',
+        description: description ?? 'Wallet top-up',
+        dateTime: DateTime.now(),
+        type: TransactionType.credit,
+        category: category ?? 'Top-up',
+      );
+      
+      _allTransactions.insert(0, tx);
+      _filteredTransactions = List.from(_allTransactions);
+      
+      await _saveToPrefs();
+      _balanceStreamController.add(_balance);
+      
+      _state = WalletState.loaded;
+    } catch (e) {
+      _state = WalletState.error;
+      _errorMessage = 'Failed to add money. Please try again.';
+    }
     
-    await _saveToPrefs();
-    _balanceStreamController.add(_balance);
     notifyListeners();
   }
 
   Future<void> spendMoney(double amount, String title, {String? category, String? description}) async {
     if (_balance < amount) throw Exception('Insufficient balance');
     
-    _balance -= amount;
-    final tx = Transaction(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      userId: 'u01',
-      amount: amount,
-      title: title,
-      description: description ?? '',
-      dateTime: DateTime.now(),
-      type: TransactionType.debit,
-      category: category ?? 'Other',
-    );
-    
-    _allTransactions.insert(0, tx);
-    _filteredTransactions = List.from(_allTransactions);
-    
-    await _saveToPrefs();
-    _balanceStreamController.add(_balance);
+    _state = WalletState.loading;
     notifyListeners();
-  }
-
-  Future<void> refundTransaction(String transactionId) async {
-    final index = _allTransactions.indexWhere((tx) => tx.id == transactionId);
-    if (index != -1 && _allTransactions[index].type == TransactionType.debit) {
-      final originalTx = _allTransactions[index];
-      _balance += originalTx.amount;
+    
+    try {
+      await Future<void>.delayed(const Duration(milliseconds: 600));
       
-      final refundTx = originalTx.copyWith(
-        id: '${originalTx.id}_refund',
-        title: 'Refund: ${originalTx.title}',
-        type: TransactionType.refund,
+      _balance -= amount;
+      final tx = Transaction(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: 'u01',
+        amount: amount,
+        title: title,
+        description: description ?? '',
         dateTime: DateTime.now(),
+        type: TransactionType.debit,
+        category: category ?? 'Other',
       );
       
-      _allTransactions.insert(0, refundTx);
+      _allTransactions.insert(0, tx);
       _filteredTransactions = List.from(_allTransactions);
       
       await _saveToPrefs();
       _balanceStreamController.add(_balance);
-      notifyListeners();
+      
+      _state = WalletState.loaded;
+    } catch (e) {
+      _state = WalletState.error;
+      _errorMessage = 'Transaction failed.';
     }
+    notifyListeners();
+  }
+
+  Future<void> refundTransaction(String transactionId) async {
+    _state = WalletState.loading;
+    notifyListeners();
+    
+    try {
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      final index = _allTransactions.indexWhere((tx) => tx.id == transactionId);
+      if (index != -1 && _allTransactions[index].type == TransactionType.debit) {
+        final originalTx = _allTransactions[index];
+        _balance += originalTx.amount;
+        
+        final refundTx = originalTx.copyWith(
+          id: '${originalTx.id}_refund',
+          title: 'Refund: ${originalTx.title}',
+          type: TransactionType.refund,
+          dateTime: DateTime.now(),
+        );
+        
+        _allTransactions.insert(0, refundTx);
+        _filteredTransactions = List.from(_allTransactions);
+        
+        await _saveToPrefs();
+        _balanceStreamController.add(_balance);
+      }
+      _state = WalletState.loaded;
+    } catch(e) {
+      _state = WalletState.error;
+      _errorMessage = 'Failed to process refund.';
+    }
+    notifyListeners();
   }
 
   // Legacy Compatibility Actions
@@ -174,7 +254,7 @@ class WalletProvider extends ChangeNotifier {
 
   // Search and Filter
   void searchTransactions(String query) {
-    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    if (_searchDebounce?.isActive ?? false) _searchDebounce?.cancel();
     
     _searchDebounce = Timer(const Duration(milliseconds: 500), () {
       if (query.isEmpty) {

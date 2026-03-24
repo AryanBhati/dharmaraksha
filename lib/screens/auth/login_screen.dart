@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _sendOtp() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isLoading = true);
 
@@ -51,8 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -80,9 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Header
                       Text(
                         isLawyer ? 'Lawyer Login' : 'Welcome Back',
-                        style: GoogleFonts.merriweather(
+                        style: GoogleFonts.poppins(
                           fontSize: isMobile ? 24 : 28,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                           height: 1.2,
                           letterSpacing: -0.5,
@@ -101,32 +103,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Phone input — hardline bottom border
                       Container(
                         decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: AppColors.primary10,
-                              width: 2,
-                            ),
-                          ),
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.dividerColor),
                         ),
                         child: Row(
                           children: [
                             // Country code
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 14),
+                                  horizontal: 16, vertical: 16),
                               decoration: BoxDecoration(
                                 border: Border(
-                                  right: BorderSide(
-                                    color: AppColors.primary10,
-                                  ),
+                                  right: BorderSide(color: theme.dividerColor),
                                 ),
                               ),
                               child: Text(
                                 '+91',
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.primary,
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.textTheme.bodyLarge?.color,
                                 ),
                               ),
                             ),
@@ -135,16 +132,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: TextFormField(
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.primary,
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.textTheme.bodyLarge?.color,
                                 ),
                                 decoration: InputDecoration(
                                   hintText: '98XXX XXXXX',
                                   hintStyle: GoogleFonts.inter(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.4),
+                                    color: theme.hintColor,
                                     fontSize: 16,
                                   ),
                                   border: InputBorder.none,
@@ -152,8 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   focusedBorder: InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 16,
-                                    vertical: 14,
+                                    vertical: 16,
                                   ),
+                                  fillColor: Colors.transparent,
                                 ),
                                 validator: (value) {
                                   if (value == null ||
@@ -207,14 +204,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Expanded(
                               child: Container(
-                                  height: 1, color: AppColors.border)),
+                                  height: 1, color: theme.dividerColor)),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               'or continue with',
                               style: GoogleFonts.inter(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textTertiaryLight,
                                 fontSize: 13,
                               ),
                             ),
@@ -246,13 +242,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Spacer(flex: 3),
 
                       // Terms
+
                       Center(
                         child: Text(
                           'By continuing, you agree to our Terms of\nService and Privacy Policy.',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryLight,
                             height: 1.5,
                           ),
                         ),
@@ -288,8 +285,8 @@ class _SocialButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primary),
-          borderRadius: BorderRadius.circular(2),
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -19,6 +19,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late TextEditingController _dobController;
+  DateTime? _dateOfBirth;
   bool _isSaving = false;
 
   @override
@@ -28,6 +30,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController = TextEditingController(text: user.name);
     _emailController = TextEditingController(text: user.email);
     _phoneController = TextEditingController(text: user.phone);
+    _dateOfBirth = user.dateOfBirth;
+    
+    String dobText = '';
+    if (user.dateOfBirth != null) {
+      final dob = user.dateOfBirth!;
+      dobText = "${dob.day.toString().padLeft(2, '0')}/${dob.month.toString().padLeft(2, '0')}/${dob.year} (Age: ${user.age})";
+    }
+    _dobController = TextEditingController(text: dobText);
   }
 
   @override
@@ -35,7 +45,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _dobController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDateOfBirth() async {
+    final DateTime now = DateTime.now();
+    final DateTime initialDate = _dateOfBirth ?? DateTime(now.year - 18, now.month, now.day);
+    
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+            ),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+
+    if (picked != null) {
+      int a = now.year - picked.year;
+      if (now.month < picked.month || (now.month == picked.month && now.day < picked.day)) {
+        a--;
+      }
+      
+      if (a < 18) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('You must be at least 18 years old.')),
+          );
+        }
+        return;
+      }
+      
+      setState(() {
+        _dateOfBirth = picked;
+        _dobController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year} (Age: $a)";
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -48,6 +102,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
           phone: _phoneController.text.trim(),
+          dateOfBirth: _dateOfBirth,
         );
     setState(() => _isSaving = false);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +134,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     CircleAvatar(
                       radius: 52,
                       backgroundImage: NetworkImage(user.profileImageUrl),
-                      backgroundColor: AppColors.surfaceVariant,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
                     Positioned(
                       bottom: 0,
@@ -109,6 +164,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         label: 'Full Name',
                         controller: _nameController,
                         icon: Icons.person_outline,
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: _selectDateOfBirth,
+                        child: AbsorbPointer(
+                          child: _buildField(
+                            context,
+                            label: 'Date of Birth (18+)',
+                            controller: _dobController,
+                            icon: Icons.calendar_today_rounded,
+                            hintText: 'Select Date of Birth',
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       _buildField(
@@ -150,6 +218,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required TextEditingController controller,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    String? hintText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,6 +235,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           controller: controller,
           keyboardType: keyboardType,
           decoration: InputDecoration(
+              hintText: hintText,
               prefixIcon: Icon(icon, size: 20, color: AppColors.textSecondary)),
         ),
       ],

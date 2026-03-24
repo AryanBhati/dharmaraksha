@@ -82,7 +82,7 @@ class _AddMoneyBottomSheetState extends State<AddMoneyBottomSheet> {
                   decoration: BoxDecoration(
                     color: isSelected 
                         ? AppColors.primary 
-                        : (isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant),
+                        : (isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surface),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

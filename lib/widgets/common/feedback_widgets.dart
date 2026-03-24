@@ -60,7 +60,7 @@ class EmptyState extends StatelessWidget {
           children: [
             if (lottieAsset != null)
               Lottie.network( // Using network for demonstration, user should provide assets
-                lottieAsset!,
+                lottieAsset ?? '',
                 height: 200,
               )
             else
@@ -87,7 +87,7 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: onAction,
-                child: Text(actionLabel!),
+                child: Text(actionLabel ?? ''),
               ),
             ],
           ],

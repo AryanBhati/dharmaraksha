@@ -241,7 +241,7 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
                       context.read<WalletProvider>().addMoney(amount.toDouble());
                       Navigator.pop(ctx);
                     },
-                    child: Text('+${amount}'),
+                    child: Text('+$amount'),
                   ),
                 ),
               )).toList(),

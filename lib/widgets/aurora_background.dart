@@ -22,7 +22,7 @@ class AuroraBackground extends StatelessWidget {
         const DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: AppColors.auroraGradient,
+              colors: [AppColors.primary, AppColors.accent],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

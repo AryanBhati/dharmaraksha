@@ -31,7 +31,7 @@ class WalletHeaderAction extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.surfaceVariant.withValues(alpha: 0.95),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: AppColors.border),
           ),

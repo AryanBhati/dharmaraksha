@@ -74,7 +74,7 @@ class StatCard extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
-              subtitle!,
+              subtitle ?? '',
               style: TextStyle(
                 fontSize: 10,
                 color: primaryColor.withValues(alpha: 0.8),

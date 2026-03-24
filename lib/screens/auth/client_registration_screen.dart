@@ -16,6 +16,8 @@ class ClientRegistrationScreen extends StatefulWidget {
 class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _dobController = TextEditingController();
+  DateTime? _dateOfBirth;
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
@@ -23,11 +25,62 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _dobController.dispose();
     super.dispose();
   }
 
+  Future<void> _selectDateOfBirth() async {
+    final DateTime now = DateTime.now();
+    final DateTime initialDate = DateTime(now.year - 18, now.month, now.day);
+    
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+            ),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+
+    if (picked != null) {
+      // Validate 18+
+      int a = now.year - picked.year;
+      if (now.month < picked.month || (now.month == picked.month && now.day < picked.day)) {
+        a--;
+      }
+      
+      if (a < 18) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('You must be at least 18 years old.')),
+          );
+        }
+        return;
+      }
+      
+      setState(() {
+        _dateOfBirth = picked;
+        _dobController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year} (Age: $a)";
+      });
+    }
+  }
+
   void _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (_dateOfBirth == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Date of Birth is required.')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -38,6 +91,7 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
       email: _emailController.text.trim().isNotEmpty
           ? _emailController.text.trim()
           : null,
+      // Pass DOB if provider gets extended later
     );
 
     if (!mounted) return;
@@ -56,7 +110,7 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: AppColors.heroGradient,
+            colors: [AppColors.primary, AppColors.accent],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -100,6 +154,22 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'Name is required'
                           : null,
+                    ),
+                    const SizedBox(height: 20),
+                    // DOB
+                    GestureDetector(
+                      onTap: _selectDateOfBirth,
+                      child: AbsorbPointer(
+                        child: _GlassField(
+                          controller: _dobController,
+                          label: 'Date of Birth (18+)',
+                          hint: 'DD/MM/YYYY',
+                          icon: Icons.calendar_today_rounded,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Date of Birth is required'
+                              : null,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     // Phone (pre-filled, non-editable)
